@@ -13,8 +13,15 @@ documentation = "https://docs.rs/macstate-core"
 keywords = ["macos", "system", "network", "power", "iokit"]
 categories = ["os::macos-apis", "api-bindings"]
 
+[features]
+default = []
+# Enable schemars derive on the public types so consumers can generate a
+# JSON Schema for the output. Off by default to keep the dep tree tiny.
+schema = ["dep:schemars"]
+
 [dependencies]
 serde = { workspace = true }
+schemars = { version = "1", optional = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 macstate-sys = { path = "../macstate-sys", version = "0.0.3" }

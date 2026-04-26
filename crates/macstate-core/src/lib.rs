@@ -8,6 +8,11 @@ pub mod power;
 use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(
+    feature = "schema",
+    schemars(description = "Snapshot of macOS system signals exposed by `macstate`.")
+)]
 pub struct State {
     pub network: network::Network,
     pub power: power::Power,

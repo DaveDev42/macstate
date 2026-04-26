@@ -14,7 +14,6 @@ keywords = ["macos", "cli", "system", "network", "power"]
 categories = ["command-line-utilities", "os::macos-apis"]
 include = [
     "src/**/*",
-    "schema.json",
     "Cargo.toml",
 ]
 
@@ -23,10 +22,11 @@ name = "macstate"
 path = "src/main.rs"
 
 [dependencies]
-macstate-core = { path = "../macstate-core", version = "0.0.3" }
+macstate-core = { path = "../macstate-core", version = "0.0.3", features = ["schema"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 clap = { workspace = true }
+schemars = "1"
 
 # cargo-binstall: pull the prebuilt tarball published by the GitHub release
 # workflow instead of compiling from source.

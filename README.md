@@ -82,11 +82,13 @@ macstate --check network.constrained && echo "low data mode on"
 JSON Schema for the output (useful for AI agents and downstream tools):
 
 ```sh
-macstate --schema
+macstate --schema           # print to stdout
+macstate --schema > schema.json
 ```
 
-The schema is also checked into the repo at
-[`crates/macstate-cli/schema.json`](crates/macstate-cli/schema.json).
+The schema is generated from the Rust types at runtime via
+[`schemars`](https://crates.io/crates/schemars), so it always matches
+what the CLI actually emits.
 
 ## Library
 

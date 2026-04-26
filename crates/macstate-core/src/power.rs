@@ -1,15 +1,28 @@
 use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Power {
     pub source: Source,
+    /// Battery charge as an integer percentage (0–100), or `null` when no
+    /// battery is present (e.g. Mac mini, iMac).
+    #[cfg_attr(feature = "schema", schemars(range(min = 0, max = 100)))]
     pub battery_percent: Option<u8>,
+    /// Whether Low Power Mode is currently active
+    /// (`NSProcessInfo.isLowPowerModeEnabled`). This is the runtime state,
+    /// not a configured preference.
     pub low_power_mode: bool,
     pub energy_mode: EnergyMode,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(rename_all = "lowercase"))]
+#[cfg_attr(
+    feature = "schema",
+    schemars(description = "Whether the system is currently drawing from AC or battery (IOPSGetProvidingPowerSourceType).")
+)]
 pub enum Source {
     Ac,
     Battery,
@@ -17,6 +30,12 @@ pub enum Source {
 
 #[derive(Debug, Clone, Copy, Serialize)]
 #[serde(rename_all = "lowercase")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(rename_all = "lowercase"))]
+#[cfg_attr(
+    feature = "schema",
+    schemars(description = "Configured energy preference for the current power source, read from IOPM active preferences (the same data source pmset(8) uses). `high` is only available on Apple Silicon Pro/Max. `unknown` is returned when the preference is unreadable or carries an unrecognized value.")
+)]
 pub enum EnergyMode {
     Automatic,
     Low,

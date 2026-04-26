@@ -30,18 +30,14 @@ struct Cli {
     schema: bool,
 }
 
-const SCHEMA: &str = include_str!("../schema.json");
-
 fn main() -> ExitCode {
     let cli = Cli::parse();
 
     if cli.schema {
-        // Re-parse and pretty-print so the output matches the rest of the CLI
-        // (and so we fail loudly if the embedded file is ever malformed).
-        let parsed: Value = serde_json::from_str(SCHEMA).expect("embedded schema is valid JSON");
+        let schema = schemars::schema_for!(macstate_core::State);
         println!(
             "{}",
-            serde_json::to_string_pretty(&parsed).expect("serialize schema")
+            serde_json::to_string_pretty(&schema).expect("serialize schema")
         );
         return ExitCode::SUCCESS;
     }
