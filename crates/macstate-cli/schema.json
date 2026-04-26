@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DaveDev42/macstate/schema.json",
+  "title": "macstate",
+  "description": "Snapshot of macOS system signals exposed by the `macstate` CLI.",
+  "type": "object",
+  "required": ["network", "power"],
+  "additionalProperties": false,
+  "properties": {
+    "network": { "$ref": "#/$defs/Network" },
+    "power": { "$ref": "#/$defs/Power" }
+  },
+  "$defs": {
+    "Network": {
+      "type": "object",
+      "required": ["constrained", "expensive", "interface"],
+      "additionalProperties": false,
+      "properties": {
+        "constrained": {
+          "type": "boolean",
+          "description": "True when the path is on a Low Data Mode network (NWPath.isConstrained)."
+        },
+        "expensive": {
+          "type": "boolean",
+          "description": "True when the path is on an expensive interface such as cellular or a personal hotspot (NWPath.isExpensive)."
+        },
+        "interface": { "$ref": "#/$defs/Interface" }
+      }
+    },
+    "Interface": {
+      "type": "string",
+      "description": "Primary interface kind reported by NWPathMonitor for the current path. `other` is reported when the path uses none of the well-known kinds (e.g. unknown VPN).",
+      "enum": ["wifi", "cellular", "wired", "loopback", "other"]
+    },
+    "Power": {
+      "type": "object",
+      "required": ["source", "battery_percent", "low_power_mode", "energy_mode"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/PowerSource" },
+        "battery_percent": {
+          "description": "Battery charge as an integer percentage (0–100), or null when no battery is present (e.g. Mac mini, iMac).",
+          "oneOf": [
+            { "type": "integer", "minimum": 0, "maximum": 100 },
+            { "type": "null" }
+          ]
+        },
+        "low_power_mode": {
+          "type": "boolean",
+          "description": "Whether Low Power Mode is currently active (NSProcessInfo.isLowPowerModeEnabled). This is the runtime state, not a configured preference."
+        },
+        "energy_mode": { "$ref": "#/$defs/EnergyMode" }
+      }
+    },
+    "PowerSource": {
+      "type": "string",
+      "description": "Whether the system is currently drawing from AC or battery (IOPSGetProvidingPowerSourceType).",
+      "enum": ["ac", "battery"]
+    },
+    "EnergyMode": {
+      "type": "string",
+      "description": "Configured energy preference for the current power source, read from IOPM active preferences (the same data source pmset(8) uses). `high` is only available on Apple Silicon Pro/Max. `unknown` is returned when the preference is unreadable or carries an unrecognized value.",
+      "enum": ["automatic", "low", "high", "unknown"]
+    }
+  }
+}

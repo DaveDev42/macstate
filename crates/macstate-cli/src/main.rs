@@ -24,10 +24,28 @@ struct Cli {
     /// Exit 0 if the boolean at PATH is true, else 1. Useful in shell guards.
     #[arg(long, value_name = "PATH")]
     check: Option<String>,
+
+    /// Print the JSON Schema describing the output and exit.
+    #[arg(long, conflicts_with_all = ["network", "power", "query", "check"])]
+    schema: bool,
 }
+
+const SCHEMA: &str = include_str!("../schema.json");
 
 fn main() -> ExitCode {
     let cli = Cli::parse();
+
+    if cli.schema {
+        // Re-parse and pretty-print so the output matches the rest of the CLI
+        // (and so we fail loudly if the embedded file is ever malformed).
+        let parsed: Value = serde_json::from_str(SCHEMA).expect("embedded schema is valid JSON");
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&parsed).expect("serialize schema")
+        );
+        return ExitCode::SUCCESS;
+    }
+
     let state = macstate_core::State::collect();
     let full = serde_json::to_value(&state).expect("serialize state");
 

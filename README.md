@@ -67,6 +67,15 @@ Shell guard via exit code (true → 0, false → 1):
 macstate --check network.constrained && echo "low data mode on"
 ```
 
+JSON Schema for the output (useful for AI agents and downstream tools):
+
+```sh
+macstate --schema
+```
+
+The schema is also checked into the repo at
+[`crates/macstate-cli/schema.json`](crates/macstate-cli/schema.json).
+
 ## Library
 
 ```toml
