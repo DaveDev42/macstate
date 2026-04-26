@@ -21,6 +21,8 @@ pub enum EnergyMode {
     Automatic,
     Low,
     High,
+    /// The IOPM preference was missing or carried a value we don't recognize.
+    Unknown,
 }
 
 #[cfg(target_os = "macos")]
@@ -45,7 +47,7 @@ impl Power {
             source: Source::Ac,
             battery_percent: None,
             low_power_mode: false,
-            energy_mode: EnergyMode::Automatic,
+            energy_mode: EnergyMode::Unknown,
         }
     }
 }
@@ -109,14 +111,14 @@ fn read_power_source() -> (Source, Option<u8>) {
 fn read_energy_mode(source: Source) -> EnergyMode {
     use macstate_sys::cf::{dict_get_dict, dict_get_i32, CFOwned};
     use macstate_sys::iokit::{
-        kIOPMHighPowerModeKey, kIOPMLowPowerModeKey, kIOPSACPowerValue, kIOPSBatteryPowerValue,
+        kIOPMLowPowerModeKey, kIOPSACPowerValue, kIOPSBatteryPowerValue,
         IOPMCopyActivePMPreferences,
     };
 
     unsafe {
         let prefs = match CFOwned::from_create(IOPMCopyActivePMPreferences()) {
             Some(p) => p,
-            None => return EnergyMode::Automatic,
+            None => return EnergyMode::Unknown,
         };
         let key = match source {
             Source::Ac => kIOPSACPowerValue,
@@ -124,14 +126,16 @@ fn read_energy_mode(source: Source) -> EnergyMode {
         };
         let sub = dict_get_dict(prefs.as_ptr(), key);
         if sub.is_null() {
-            return EnergyMode::Automatic;
+            return EnergyMode::Unknown;
         }
-        let low = dict_get_i32(sub, kIOPMLowPowerModeKey).unwrap_or(0) != 0;
-        let high = dict_get_i32(sub, kIOPMHighPowerModeKey).unwrap_or(0) != 0;
-        match (low, high) {
-            (true, _) => EnergyMode::Low,
-            (_, true) => EnergyMode::High,
-            _ => EnergyMode::Automatic,
+        // Despite the key being called `LowPowerMode`, the value is the
+        // unified `pmset powermode` indicator: 0=automatic, 1=low, 2=high.
+        // The sibling `HighPowerMode` key is unused on current macOS.
+        match dict_get_i32(sub, kIOPMLowPowerModeKey) {
+            Some(0) => EnergyMode::Automatic,
+            Some(1) => EnergyMode::Low,
+            Some(2) => EnergyMode::High,
+            _ => EnergyMode::Unknown,
         }
     }
 }

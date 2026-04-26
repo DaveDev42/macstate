@@ -29,6 +29,8 @@ pub const kIOPSMaxCapacityKey: &CStr = c"Max Capacity";
 pub const kIOPSACPowerValue: &str = "AC Power";
 pub const kIOPSBatteryPowerValue: &str = "Battery Power";
 
-// Sub-dict keys inside IOPMCopyActivePMPreferences entries.
+// Sub-dict key inside IOPMCopyActivePMPreferences entries.
+// Despite the name, the value is the unified `pmset powermode` indicator:
+// 0 = automatic, 1 = low, 2 = high. The sibling `HighPowerMode` key
+// exists in the dict but is unused on current macOS.
 pub const kIOPMLowPowerModeKey: &CStr = c"LowPowerMode";
-pub const kIOPMHighPowerModeKey: &CStr = c"HighPowerMode";
