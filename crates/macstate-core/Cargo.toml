@@ -17,4 +17,4 @@ categories = ["os::macos-apis", "api-bindings"]
 serde = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-macstate-sys = { path = "../macstate-sys", version = "0.0.1" }
+macstate-sys = { path = "../macstate-sys", version = "0.0.2" }
