@@ -17,10 +17,41 @@ pub enum Interface {
     Other,
 }
 
+#[cfg(target_os = "macos")]
 impl Network {
     pub fn collect() -> Self {
-        // TODO: NWPathMonitor via objc2-network.
-        // Stub returns safe defaults so the CLI is usable end-to-end.
+        use macstate_sys::nwpath::{snapshot, InterfaceType};
+        use std::time::Duration;
+
+        // NWPathMonitor delivers its first update very quickly (<100ms typical),
+        // but allow generous slack on cold starts.
+        let Some(snap) = snapshot(Duration::from_secs(2)) else {
+            return Self {
+                constrained: false,
+                expensive: false,
+                interface: Interface::Other,
+            };
+        };
+
+        let interface = match snap.interface {
+            Some(InterfaceType::Wifi) => Interface::Wifi,
+            Some(InterfaceType::Cellular) => Interface::Cellular,
+            Some(InterfaceType::WiredEthernet) => Interface::Wired,
+            Some(InterfaceType::Loopback) => Interface::Loopback,
+            _ => Interface::Other,
+        };
+
+        Self {
+            constrained: snap.constrained,
+            expensive: snap.expensive,
+            interface,
+        }
+    }
+}
+
+#[cfg(not(target_os = "macos"))]
+impl Network {
+    pub fn collect() -> Self {
         Self {
             constrained: false,
             expensive: false,

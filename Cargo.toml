@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+    "crates/macstate-sys",
     "crates/macstate-core",
     "crates/macstate-cli",
 ]
@@ -11,11 +12,9 @@ edition = "2021"
 license = "BSD-3-Clause"
 repository = "https://github.com/DaveDev42/macstate"
 authors = ["Dave Choi <helloworld4625@gmail.com>"]
-rust-version = "1.75"
+rust-version = "1.77"
 
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 clap = { version = "4", features = ["derive"] }
-objc2 = "0.5"
-objc2-foundation = { version = "0.2", features = ["NSProcessInfo", "NSString"] }

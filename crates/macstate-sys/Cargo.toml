@@ -1,15 +1,12 @@
 [package]
-name = "macstate-core"
+name = "macstate-sys"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
 authors.workspace = true
 rust-version.workspace = true
-description = "macOS system signal collection library (network, power)"
-
-[dependencies]
-serde = { workspace = true }
+description = "Raw macOS FFI used by macstate (CoreFoundation, IOKit, Network)"
 
 [target.'cfg(target_os = "macos")'.dependencies]
-macstate-sys = { path = "../macstate-sys", version = "0.1.0" }
+block2 = "0.6"
