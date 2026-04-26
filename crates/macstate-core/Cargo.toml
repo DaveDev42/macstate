@@ -1,0 +1,16 @@
+[package]
+name = "macstate-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+description = "macOS system signal collection library (network, power)"
+
+[dependencies]
+serde = { workspace = true }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = { workspace = true }
+objc2-foundation = { workspace = true }
