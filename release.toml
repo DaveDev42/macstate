@@ -1,0 +1,27 @@
+# cargo-release configuration: lockstep across the workspace.
+#
+# Usage:
+#   cargo release patch         # dry-run (default)
+#   cargo release patch --execute   # actually bump, commit, tag, push, publish
+
+# Bump every crate to the same version every time.
+shared-version = true
+consolidate-commits = true
+
+# Single commit + single tag for the whole workspace.
+pre-release-commit-message = "release v{{version}}"
+tag-name = "v{{version}}"
+tag-message = "v{{version}}"
+
+# Push the commit and tag — the GH Actions release workflow takes over from
+# there (build binaries, GitHub Release, crates.io publish via OIDC).
+push = true
+
+# Don't `cargo publish` from the local machine; the workflow does it via
+# Trusted Publishing.
+publish = false
+
+# Sanity guards.
+allow-branch = ["main"]
+sign-tag = false
+sign-commit = false
