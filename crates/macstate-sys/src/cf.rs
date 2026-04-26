@@ -116,6 +116,18 @@ pub unsafe fn dict_get_string(dict: CFDictionaryRef, key: &CStr) -> Option<Strin
     cfstring_to_string(raw as CFStringRef)
 }
 
+/// Borrow a sub-dictionary from `dict` by `&str` key. The returned
+/// pointer is non-owning (lifetime tied to `dict`).
+pub unsafe fn dict_get_dict(dict: CFDictionaryRef, key: &str) -> CFDictionaryRef {
+    let Ok(c) = std::ffi::CString::new(key) else {
+        return std::ptr::null();
+    };
+    let Some(key_cf) = cfstring_from_cstr(&c) else {
+        return std::ptr::null();
+    };
+    CFDictionaryGetValue(dict, key_cf.as_ptr()) as CFDictionaryRef
+}
+
 pub unsafe fn cfstring_to_string(s: CFStringRef) -> Option<String> {
     if s.is_null() {
         return None;

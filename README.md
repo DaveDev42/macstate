@@ -7,6 +7,11 @@ Surfaces signals that aren't directly readable from the shell:
 - **Network** — Low Data Mode (`constrained`), expensive link (cellular/hotspot), interface kind
 - **Power** — AC vs battery, battery percent, Low Power Mode, Energy Mode (automatic/low/high)
 
+`low_power_mode` reports the *currently active* state (via
+`NSProcessInfo.isLowPowerModeEnabled`); `energy_mode` reports the
+*configured preference* for the current power source (AC or Battery)
+read from IOKit's active PM preferences — the same source `pmset` uses.
+
 macOS only.
 
 ## Install

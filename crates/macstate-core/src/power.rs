@@ -8,7 +8,7 @@ pub struct Power {
     pub energy_mode: EnergyMode,
 }
 
-#[derive(Debug, Clone, Copy, Serialize)]
+#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 pub enum Source {
     Ac,
@@ -27,8 +27,8 @@ pub enum EnergyMode {
 impl Power {
     pub fn collect() -> Self {
         let (source, battery_percent) = read_power_source();
-        let energy_mode = read_energy_mode();
-        let low_power_mode = matches!(energy_mode, EnergyMode::Low);
+        let low_power_mode = macstate_sys::objc::is_low_power_mode_enabled();
+        let energy_mode = read_energy_mode(source);
         Self {
             source,
             battery_percent,
@@ -74,10 +74,7 @@ fn read_power_source() -> (Source, Option<u8>) {
             None => Source::Ac,
         };
 
-        // CFArrayRef from IOPSCopyPowerSourcesList is +1, but the list itself
-        // borrows entries from `snapshot`, so we own and release the array.
-        let list_raw = IOPSCopyPowerSourcesList(snapshot.as_ptr());
-        let list = match CFOwned::from_create(list_raw) {
+        let list = match CFOwned::from_create(IOPSCopyPowerSourcesList(snapshot.as_ptr())) {
             Some(l) => l,
             None => return (source, None),
         };
@@ -109,43 +106,32 @@ fn read_power_source() -> (Source, Option<u8>) {
 }
 
 #[cfg(target_os = "macos")]
-fn read_energy_mode() -> EnergyMode {
-    // `pmset -g` exposes:
-    //   - `lowpowermode 1` (Intel + Apple Silicon, Low Power Mode)
-    //   - `highpowermode 1` (Apple Silicon Pro/Max, High Power Mode)
-    //   - `powermode N` (unified indicator on newer systems: 0=auto, 1=low, 2=high)
-    let Ok(out) = std::process::Command::new("pmset").arg("-g").output() else {
-        return EnergyMode::Automatic;
+fn read_energy_mode(source: Source) -> EnergyMode {
+    use macstate_sys::cf::{dict_get_dict, dict_get_i32, CFOwned};
+    use macstate_sys::iokit::{
+        kIOPMHighPowerModeKey, kIOPMLowPowerModeKey, kIOPSACPowerValue, kIOPSBatteryPowerValue,
+        IOPMCopyActivePMPreferences,
     };
-    let text = String::from_utf8_lossy(&out.stdout);
-    let mut low = false;
-    let mut high = false;
-    for line in text.lines() {
-        let l = line.trim();
-        if let Some(rest) = l.strip_prefix("lowpowermode") {
-            if first_field(rest) == Some("1") {
-                low = true;
-            }
-        } else if let Some(rest) = l.strip_prefix("highpowermode") {
-            if first_field(rest) == Some("1") {
-                high = true;
-            }
-        } else if let Some(rest) = l.strip_prefix("powermode") {
-            match first_field(rest) {
-                Some("1") => low = true,
-                Some("2") => high = true,
-                _ => {}
-            }
+
+    unsafe {
+        let prefs = match CFOwned::from_create(IOPMCopyActivePMPreferences()) {
+            Some(p) => p,
+            None => return EnergyMode::Automatic,
+        };
+        let key = match source {
+            Source::Ac => kIOPSACPowerValue,
+            Source::Battery => kIOPSBatteryPowerValue,
+        };
+        let sub = dict_get_dict(prefs.as_ptr(), key);
+        if sub.is_null() {
+            return EnergyMode::Automatic;
+        }
+        let low = dict_get_i32(sub, kIOPMLowPowerModeKey).unwrap_or(0) != 0;
+        let high = dict_get_i32(sub, kIOPMHighPowerModeKey).unwrap_or(0) != 0;
+        match (low, high) {
+            (true, _) => EnergyMode::Low,
+            (_, true) => EnergyMode::High,
+            _ => EnergyMode::Automatic,
         }
     }
-    match (low, high) {
-        (true, _) => EnergyMode::Low,
-        (_, true) => EnergyMode::High,
-        _ => EnergyMode::Automatic,
-    }
-}
-
-#[cfg(target_os = "macos")]
-fn first_field(s: &str) -> Option<&str> {
-    s.split_whitespace().next()
 }
