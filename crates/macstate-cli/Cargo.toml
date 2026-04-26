@@ -1,19 +1,36 @@
 [package]
-name = "macstate-cli"
+name = "macstate"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
 authors.workspace = true
 rust-version.workspace = true
-description = "CLI for macOS system signals (network, power) as JSON"
+description = "CLI exposing macOS system signals (network, power) as JSON"
+readme = "../../README.md"
+homepage = "https://github.com/DaveDev42/macstate"
+documentation = "https://github.com/DaveDev42/macstate#readme"
+keywords = ["macos", "cli", "system", "network", "power"]
+categories = ["command-line-utilities", "os::macos-apis"]
+include = [
+    "src/**/*",
+    "schema.json",
+    "Cargo.toml",
+]
 
 [[bin]]
 name = "macstate"
 path = "src/main.rs"
 
 [dependencies]
-macstate-core = { path = "../macstate-core", version = "0.1.0" }
+macstate-core = { path = "../macstate-core", version = "0.0.1" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 clap = { workspace = true }
+
+# cargo-binstall: pull the prebuilt tarball published by the GitHub release
+# workflow instead of compiling from source.
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/{ name }-v{ version }-{ target }.tar.gz"
+pkg-fmt = "tgz"
+bin-dir = "{ name }{ binary-ext }"

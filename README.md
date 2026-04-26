@@ -16,13 +16,25 @@ macOS only.
 
 ## Install
 
-Requires a Rust toolchain (`rustup`).
+From crates.io (requires a Rust toolchain):
 
 ```sh
-cargo install --git https://github.com/DaveDev42/macstate macstate-cli
+cargo install macstate
 ```
 
-Update with `--force`.
+Prebuilt binary via [`cargo-binstall`](https://github.com/cargo-bins/cargo-binstall) (no toolchain needed):
+
+```sh
+cargo binstall macstate
+```
+
+Or pin to the bleeding edge from git:
+
+```sh
+cargo install --git https://github.com/DaveDev42/macstate macstate
+```
+
+Update any of the above with `--force`.
 
 ## Usage
 
@@ -80,7 +92,7 @@ The schema is also checked into the repo at
 
 ```toml
 [dependencies]
-macstate-core = { git = "https://github.com/DaveDev42/macstate" }
+macstate-core = "0.0"
 ```
 
 ```rust

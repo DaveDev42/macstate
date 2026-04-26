@@ -6,7 +6,12 @@ license.workspace = true
 repository.workspace = true
 authors.workspace = true
 rust-version.workspace = true
-description = "Raw macOS FFI used by macstate (CoreFoundation, IOKit, Network)"
+description = "Hand-written macOS FFI (CoreFoundation, IOKit, Network.framework) used by macstate"
+readme = "../../README.md"
+homepage = "https://github.com/DaveDev42/macstate"
+documentation = "https://docs.rs/macstate-sys"
+keywords = ["macos", "ffi", "iokit", "corefoundation", "nwpath"]
+categories = ["os::macos-apis", "external-ffi-bindings"]
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2 = "0.6"

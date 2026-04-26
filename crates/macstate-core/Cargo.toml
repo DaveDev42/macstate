@@ -6,10 +6,15 @@ license.workspace = true
 repository.workspace = true
 authors.workspace = true
 rust-version.workspace = true
-description = "macOS system signal collection library (network, power)"
+description = "Library exposing macOS system signals (network, power) as serde-serializable structs"
+readme = "../../README.md"
+homepage = "https://github.com/DaveDev42/macstate"
+documentation = "https://docs.rs/macstate-core"
+keywords = ["macos", "system", "network", "power", "iokit"]
+categories = ["os::macos-apis", "api-bindings"]
 
 [dependencies]
 serde = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-macstate-sys = { path = "../macstate-sys", version = "0.1.0" }
+macstate-sys = { path = "../macstate-sys", version = "0.0.1" }
