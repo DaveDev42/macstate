@@ -46,7 +46,6 @@ jobs:
       matrix:
         include:
           - target: aarch64-apple-darwin
-          - target: x86_64-apple-darwin
     steps:
       - uses: actions/checkout@v4
 
@@ -97,3 +96,23 @@ jobs:
             dist/*.tar.gz
             dist/*.sha256
           generate_release_notes: true
+
+  bump-tap:
+    name: bump homebrew-tap formula
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bump Formula/macstate.rb in DaveDev42/homebrew-tap
+        uses: mislav/bump-homebrew-formula-action@v4
+        with:
+          formula-name: macstate
+          formula-path: Formula/macstate.rb
+          homebrew-tap: DaveDev42/homebrew-tap
+          base-branch: main
+          download-url: https://github.com/DaveDev42/macstate/releases/download/${{ github.ref_name }}/macstate-${{ github.ref_name }}-aarch64-apple-darwin.tar.gz
+          commit-message: |
+            macstate {{version}}
+
+            Created by https://github.com/mislav/bump-homebrew-formula-action
+        env:
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
