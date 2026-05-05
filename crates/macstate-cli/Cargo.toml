@@ -22,7 +22,7 @@ name = "macstate"
 path = "src/main.rs"
 
 [dependencies]
-macstate-core = { path = "../macstate-core", version = "0.0.4", features = ["schema"] }
+macstate-core = { path = "../macstate-core", version = "0.0.5", features = ["schema"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 clap = { workspace = true }

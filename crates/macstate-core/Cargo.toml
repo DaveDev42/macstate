@@ -24,4 +24,4 @@ serde = { workspace = true }
 schemars = { version = "1", optional = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-macstate-sys = { path = "../macstate-sys", version = "0.0.4" }
+macstate-sys = { path = "../macstate-sys", version = "0.0.5" }
