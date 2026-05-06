@@ -108,5 +108,4 @@ jobs:
           formula-name: macstate
           version: ${{ github.ref_name }}
           download-url: https://github.com/DaveDev42/macstate/releases/download/${{ github.ref_name }}/macstate-${{ github.ref_name }}-aarch64-apple-darwin.tar.gz
-        env:
-          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          tap-token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
